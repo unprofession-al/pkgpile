@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/cavaliercoder/go-rpm"
@@ -14,7 +16,22 @@ func UploadPackage(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	name := fmt.Sprintf("%s-%s-%s.rpm", p.Name(), p.Architecture(), p.Version())
+
+	t, err := template.New("filename").Parse(config.FilenameTemplate)
+	if err != nil {
+		fmt.Println("1")
+		panic(err)
+	}
+
+	fmt.Println("2")
+	var n bytes.Buffer
+	err = t.Execute(&n, p)
+	if err != nil {
+		fmt.Println("3")
+		panic(err)
+	}
+	fmt.Println("4")
+	name := n.String()
 
 	r.JSON(res, http.StatusOK, name)
 }

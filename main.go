@@ -26,6 +26,7 @@ func init() {
 	env.Var(&config.ServerPort, "SERVER_PORT", "8081", "Port to bind to in order to serve GETs")
 	env.Var(&config.Base, "BASE", "/tmp/", "Base directories of the repos")
 	env.Var(&config.DebugStr, "DEBUG", "false", "Turn debugging on (only print commands to be run)")
+	env.Var(&config.FilenameTemplate, "FILENAME_TEMPLATE", "{{.Name}}-{{.Version}}-{{.Architecture}}.rpm", "Turn debugging on (only print commands to be run)")
 }
 
 func main() {
