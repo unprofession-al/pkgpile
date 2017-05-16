@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"log"
 	"net/http"
 	"strings"
@@ -20,17 +21,24 @@ var config = &Configuration{
 }
 
 var l = NewLogger()
+var filenameTemplate *template.Template
 
 func init() {
 	env.Var(&config.RecieverPort, "RECIEVER_PORT", "8080", "Port to bind to in order to accept rpms via POST")
 	env.Var(&config.ServerPort, "SERVER_PORT", "8081", "Port to bind to in order to serve GETs")
 	env.Var(&config.Base, "BASE", "/tmp/", "Base directories of the repos")
 	env.Var(&config.DebugStr, "DEBUG", "false", "Turn debugging on (only print commands to be run)")
-	env.Var(&config.FilenameTemplate, "FILENAME_TEMPLATE", "{{.Name}}-{{.Version}}-{{.Architecture}}.rpm", "Turn debugging on (only print commands to be run)")
+	env.Var(&config.FilenameTemplate, "FILENAME_TEMPLATE", "{{.Name}}-{{.Version}}-{{.Release}}.{{.Architecture}}.rpm", "Turn debugging on (only print commands to be run)")
 }
 
 func main() {
-	env.Parse("YUMR", false)
+	env.Parse("PKGPILE", false)
+
+	var err error
+	filenameTemplate, err = template.New("filename").Parse(config.FilenameTemplate)
+	if err != nil {
+		panic(err)
+	}
 
 	config.Debug = !strings.Contains(config.DebugStr, "false")
 
@@ -39,6 +47,8 @@ func main() {
 	r.HandleFunc("/{repo}/{filename}", UploadPackage).Methods("POST")
 	r.HandleFunc("/config.json", GetConfig).Methods("GET")
 	chain := alice.New().Then(r)
+
+	l.l("starting...", "pkgpile should be ready")
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)

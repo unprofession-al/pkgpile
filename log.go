@@ -17,14 +17,14 @@ func NewLogger() *Logger {
 
 type logmgs struct {
 	Timestamp string `json:"timestamp"`
-	Command   string `json:"command"`
+	Action    string `json:"action"`
 	Result    string `json:"result"`
 }
 
-func (l *Logger) out(cmd string, res string) {
+func (l *Logger) l(act string, res string) {
 	log := &logmgs{
 		Timestamp: time.Now().Format("2006/01/02-15:04:05.000"),
-		Command:   cmd,
+		Action:    act,
 		Result:    res,
 	}
 
