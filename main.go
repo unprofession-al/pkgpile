@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/sontags/env"
+	"github.com/unprofession-al/pkgpile/yum"
 )
 
 var version string
@@ -49,6 +50,8 @@ func main() {
 	chain := alice.New().Then(r)
 
 	l.l("starting...", "pkgpile should be ready")
+
+	yum.RepomdGen()
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
