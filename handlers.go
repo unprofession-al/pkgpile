@@ -65,3 +65,16 @@ func GetFilelists(res http.ResponseWriter, req *http.Request) {
 	filelists := yum.FilelistsRender(store[reponame])
 	r.XML(res, http.StatusOK, filelists)
 }
+
+func GetOther(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	reponame := vars["repo"]
+
+	r := render.New(render.Options{
+		PrefixXML: []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"),
+		IndentXML: true,
+	})
+
+	other := yum.OtherRender(store[reponame])
+	r.XML(res, http.StatusOK, other)
+}

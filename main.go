@@ -47,6 +47,7 @@ func main() {
 	r.HandleFunc("/{repo}/", UploadPackage).Methods("POST")
 	r.HandleFunc("/config.json", GetConfig).Methods("GET")
 	r.HandleFunc("/{repo}/repodata/filelists.xml", GetFilelists).Methods("GET")
+	r.HandleFunc("/{repo}/repodata/other.xml", GetOther).Methods("GET")
 	chain := alice.New().Then(r)
 
 	l.l("starting...", "pkgpile should be ready")

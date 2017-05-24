@@ -16,22 +16,13 @@ type Filelists struct {
 }
 
 type FilelistsPackage struct {
-	Version      FilelistsVersion `xml:"version"`
-	File         []FilelistsFile  `xml:"file"`
-	Architecture string           `xml:"arch,attr"`
-	Pkgid        string           `xml:"pkgid,attr"`
-	Name         string           `xml:"name,attr"`
+	File []FilelistsFile `xml:"file"`
+	Package
 }
 
 type FilelistsFile struct {
 	Type  string `xml:"type,attr,omitempty"`
 	Value string `xml:",chardata"`
-}
-
-type FilelistsVersion struct {
-	Epoch   int    `xml:"epoch,attr"`
-	Version string `xml:"ver,attr"`
-	Release string `xml:"rel,attr"`
 }
 
 func FilelistsRender(packages map[string]rpm.PackageFile) Filelists {
@@ -42,23 +33,26 @@ func FilelistsRender(packages map[string]rpm.PackageFile) Filelists {
 	}
 
 	for sum, p := range packages {
-		pkgversion := FilelistsVersion{
+		pkgversion := Version{
 			Epoch:   p.Epoch(),
 			Version: p.Version(),
 			Release: p.Release(),
 		}
 		pkgdata := FilelistsPackage{
-			Architecture: p.Architecture(),
-			Pkgid:        sum,
-			Name:         p.Name(),
-			Version:      pkgversion,
-			File:         []FilelistsFile{},
+			Package: Package{
+				Architecture: p.Architecture(),
+				Pkgid:        sum,
+				Name:         p.Name(),
+				Version:      pkgversion,
+			},
+			File: []FilelistsFile{},
 		}
 		for _, f := range p.Files() {
 			file := FilelistsFile{
 				Value: f.Name(),
 			}
-			if f.Mode().IsDir() {
+			if f.IsDir() {
+				// TODO: The if does not quite work
 				file.Type = "dir"
 			}
 			pkgdata.File = append(pkgdata.File, file)
