@@ -1,8 +1,7 @@
 package main
 
 type Configuration struct {
-	ServerPort       string
-	RecieverPort     string
+	Port             string
 	Base             string
 	DebugStr         string
 	Debug            bool
