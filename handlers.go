@@ -40,8 +40,10 @@ func UploadPackage(res http.ResponseWriter, req *http.Request) {
 
 	if _, ok := store[reponame]; !ok {
 		store[reponame] = map[string]rpm.PackageFile{}
+		l.l("creating repo", "creating repo "+reponame+" which did not exist")
 	}
 	store[reponame][sumString] = *p
+	l.l("storing package", "package "+n.String()+" is saved")
 
 	r.JSON(res, http.StatusOK, n.String())
 }

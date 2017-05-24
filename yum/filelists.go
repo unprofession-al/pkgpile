@@ -58,7 +58,7 @@ func FilelistsRender(packages map[string]rpm.PackageFile) Filelists {
 			file := FilelistsFile{
 				Value: f.Name(),
 			}
-			if f.IsDir() {
+			if f.Mode().IsDir() {
 				file.Type = "dir"
 			}
 			pkgdata.File = append(pkgdata.File, file)
