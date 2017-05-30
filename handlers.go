@@ -78,3 +78,16 @@ func GetOther(res http.ResponseWriter, req *http.Request) {
 	other := yum.OtherRender(store[reponame])
 	r.XML(res, http.StatusOK, other)
 }
+
+func GetPrimary(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	reponame := vars["repo"]
+
+	r := render.New(render.Options{
+		PrefixXML: []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"),
+		IndentXML: true,
+	})
+
+	primary := yum.PrimaryRender(store[reponame])
+	r.XML(res, http.StatusOK, primary)
+}

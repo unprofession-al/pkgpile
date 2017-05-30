@@ -16,13 +16,8 @@ type Filelists struct {
 }
 
 type FilelistsPackage struct {
-	File []FilelistsFile `xml:"file"`
+	File []File `xml:"file"`
 	Package
-}
-
-type FilelistsFile struct {
-	Type  string `xml:"type,attr,omitempty"`
-	Value string `xml:",chardata"`
 }
 
 func FilelistsRender(packages map[string]rpm.PackageFile) Filelists {
@@ -45,10 +40,10 @@ func FilelistsRender(packages map[string]rpm.PackageFile) Filelists {
 				Name:         p.Name(),
 				Version:      pkgversion,
 			},
-			File: []FilelistsFile{},
+			File: []File{},
 		}
 		for _, f := range p.Files() {
-			file := FilelistsFile{
+			file := File{
 				Value: f.Name(),
 			}
 			if f.IsDir() {

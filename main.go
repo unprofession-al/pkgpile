@@ -48,6 +48,7 @@ func main() {
 	r.HandleFunc("/config.json", GetConfig).Methods("GET")
 	r.HandleFunc("/{repo}/repodata/filelists.xml", GetFilelists).Methods("GET")
 	r.HandleFunc("/{repo}/repodata/other.xml", GetOther).Methods("GET")
+	r.HandleFunc("/{repo}/repodata/primary.xml", GetPrimary).Methods("GET")
 	chain := alice.New().Then(r)
 
 	l.l("starting...", "pkgpile should be ready")

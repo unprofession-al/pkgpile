@@ -24,15 +24,6 @@ type RepomdData struct {
 	OpenSize     int      `xml:"open-size"`
 }
 
-type Checksum struct {
-	Type  string `xml:"type,attr"`
-	Value string `xml:",chardata"`
-}
-
-type Location struct {
-	Href string `xml:"href,attr"`
-}
-
 func RepomdGen() {
 	data := []RepomdData{
 		RepomdData{

@@ -12,3 +12,18 @@ type Version struct {
 	Version string `xml:"ver,attr"`
 	Release string `xml:"rel,attr"`
 }
+
+type Checksum struct {
+	Type  string `xml:"type,attr"`
+	Value string `xml:",chardata"`
+	Pkgid string `xml:"pkgid,attr,omitempty"`
+}
+
+type Location struct {
+	Href string `xml:"href,attr"`
+}
+
+type File struct {
+	Type  string `xml:"type,attr,omitempty"`
+	Value string `xml:",chardata"`
+}
