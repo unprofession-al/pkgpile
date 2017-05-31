@@ -26,7 +26,7 @@ type OtherChangelog struct {
 	Value  string `xml:",chardata"`
 }
 
-func OtherRender(packages map[string]rpm.PackageFile) Other {
+func GetOther(packages map[string]rpm.PackageFile) Other {
 	other := Other{
 		Packages: len(packages),
 		Xmlns:    otherXmlns,

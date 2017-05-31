@@ -2,9 +2,7 @@ package yum
 
 import (
 	"encoding/xml"
-	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/cavaliercoder/go-rpm"
 )
@@ -36,8 +34,8 @@ type PrimaryPackage struct {
 }
 
 type PrimaryTime struct {
-	File  time.Time `xml:"file,attr"`
-	Build time.Time `xml:"build,attr"`
+	File  int64 `xml:"file,attr"`
+	Build int64 `xml:"build,attr"`
 }
 
 type PrimarySize struct {
@@ -55,6 +53,7 @@ type PrimaryFormat struct {
 	HeaderRange PrimaryFormatHeaderRange `xml:"rpm:heander-range"`
 	Provides    []PrimaryFormatEntry     `xml:"rpm:provides>rpm:entry"`
 	Requires    []PrimaryFormatEntry     `xml:"rpm:requires>rpm:entry"`
+	Conflicts   []PrimaryFormatEntry     `xml:"rpm:conflicts>rpm:entry"`
 	Files       []File                   `xml:"file"`
 }
 
@@ -72,7 +71,7 @@ type PrimaryFormatEntry struct {
 	Pre     string `xml:"pre,attr,omitempty"`
 }
 
-func PrimaryRender(packages map[string]rpm.PackageFile) Primary {
+func GetPrimary(packages map[string]rpm.PackageFile) Primary {
 	primary := Primary{
 		Packages: len(packages),
 		Xmlns:    primaryXmlns,
@@ -92,8 +91,8 @@ func PrimaryRender(packages map[string]rpm.PackageFile) Primary {
 			Pkgid: "YES",
 		}
 		pkgtime := PrimaryTime{
-			File:  p.FileTime(),
-			Build: p.BuildTime(),
+			File:  p.FileTime().Unix(),
+			Build: p.BuildTime().Unix(),
 		}
 		// TODO: Sizes seem not to work quite well
 		pkgsize := PrimarySize{
@@ -114,6 +113,7 @@ func PrimaryRender(packages map[string]rpm.PackageFile) Primary {
 			HeaderRange: pkgformatheaderrange,
 			Provides:    []PrimaryFormatEntry{},
 			Requires:    []PrimaryFormatEntry{},
+			Conflicts:   []PrimaryFormatEntry{},
 			Files:       []File{},
 		}
 		for _, p := range p.Provides() {
@@ -122,15 +122,21 @@ func PrimaryRender(packages map[string]rpm.PackageFile) Primary {
 				Epoch:   strconv.Itoa(p.Epoch()),
 				Release: p.Release(),
 				Version: p.Version(),
+				Flags:   ReadFlags(p.Flags()),
 			}
 			pkgformat.Provides = append(pkgformat.Provides, provided)
 		}
 		for _, r := range p.Requires() {
 			requirement := PrimaryFormatEntry{
 				Name: r.Name(),
-				Pre:  ReadFlags(r.Flags()),
 			}
 			pkgformat.Requires = append(pkgformat.Requires, requirement)
+		}
+		for _, c := range p.Conflicts() {
+			confilct := PrimaryFormatEntry{
+				Name: c.Name(),
+			}
+			pkgformat.Conflicts = append(pkgformat.Conflicts, confilct)
 		}
 		for _, f := range p.Files() {
 			file := File{
@@ -158,25 +164,4 @@ func PrimaryRender(packages map[string]rpm.PackageFile) Primary {
 		primary.Package = append(primary.Package, pkg)
 	}
 	return primary
-}
-
-func ReadFlags(f int) string {
-	var s string
-	switch {
-	case rpm.DepFlagLesserOrEqual == (f & rpm.DepFlagLesserOrEqual):
-		s = fmt.Sprintf("%s <=", s)
-
-	case rpm.DepFlagLesser == (f & rpm.DepFlagLesser):
-		s = fmt.Sprintf("%s <", s)
-
-	case rpm.DepFlagGreaterOrEqual == (f & rpm.DepFlagGreaterOrEqual):
-		s = fmt.Sprintf("%s >=", s)
-
-	case rpm.DepFlagGreater == (f & rpm.DepFlagGreater):
-		s = fmt.Sprintf("%s >", s)
-
-	case rpm.DepFlagEqual == (f & rpm.DepFlagEqual):
-		s = fmt.Sprintf("%s =", s)
-	}
-	return s
 }

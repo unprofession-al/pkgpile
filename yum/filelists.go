@@ -20,7 +20,7 @@ type FilelistsPackage struct {
 	Package
 }
 
-func FilelistsRender(packages map[string]rpm.PackageFile) Filelists {
+func GetFilelists(packages map[string]rpm.PackageFile) Filelists {
 	filelists := Filelists{
 		Packages: len(packages),
 		Xmlns:    filelistsXmlns,

@@ -45,6 +45,12 @@ func UploadPackage(res http.ResponseWriter, req *http.Request) {
 	store[reponame][sumString] = *p
 	l.l("storing package", "package "+n.String()+" is saved")
 
+	repodata[reponame], err = yum.CreateRepoData(store[reponame])
+	if err != nil {
+		panic(err)
+	}
+	l.l("updating repodata", "repodata saved")
+
 	r.JSON(res, http.StatusOK, n.String())
 }
 
@@ -57,37 +63,34 @@ func GetFilelists(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	reponame := vars["repo"]
 
-	r := render.New(render.Options{
-		PrefixXML: []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"),
-		IndentXML: true,
-	})
-
-	filelists := yum.FilelistsRender(store[reponame])
-	r.XML(res, http.StatusOK, filelists)
+	res.WriteHeader(http.StatusOK)
+	res.Header().Set("Content-Type", "application/gzip")
+	res.Write(repodata[reponame].Filelists)
 }
 
 func GetOther(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	reponame := vars["repo"]
 
-	r := render.New(render.Options{
-		PrefixXML: []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"),
-		IndentXML: true,
-	})
-
-	other := yum.OtherRender(store[reponame])
-	r.XML(res, http.StatusOK, other)
+	res.WriteHeader(http.StatusOK)
+	res.Header().Set("Content-Type", "application/gzip")
+	res.Write(repodata[reponame].Other)
 }
 
 func GetPrimary(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	reponame := vars["repo"]
 
-	r := render.New(render.Options{
-		PrefixXML: []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"),
-		IndentXML: true,
-	})
+	res.WriteHeader(http.StatusOK)
+	res.Header().Set("Content-Type", "application/gzip")
+	res.Write(repodata[reponame].Primary)
+}
 
-	primary := yum.PrimaryRender(store[reponame])
-	r.XML(res, http.StatusOK, primary)
+func GetRepomd(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	reponame := vars["repo"]
+
+	res.WriteHeader(http.StatusOK)
+	res.Header().Set("Content-Type", "text/xml; charset=UTF-8")
+	res.Write(repodata[reponame].Repomd)
 }
