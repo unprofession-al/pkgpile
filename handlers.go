@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/cavaliercoder/go-rpm"
 	"github.com/gorilla/mux"
@@ -38,14 +39,14 @@ func UploadPackage(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	if _, ok := store[reponame]; !ok {
-		store[reponame] = map[string]rpm.PackageFile{}
+	if _, ok := metadata[reponame]; !ok {
+		metadata[reponame] = map[string]rpm.PackageFile{}
 		l.l("creating repo", "creating repo "+reponame+" which did not exist")
 	}
-	store[reponame][sumString] = *p
+	metadata[reponame][sumString] = *p
 	l.l("storing package", "package "+n.String()+" is saved")
 
-	repodata[reponame], err = yum.CreateRepoData(store[reponame])
+	repodata[reponame], err = yum.CreateRepoData(metadata[reponame])
 	if err != nil {
 		panic(err)
 	}
@@ -59,38 +60,19 @@ func GetConfig(res http.ResponseWriter, req *http.Request) {
 	r.JSON(res, http.StatusOK, config)
 }
 
-func GetFilelists(res http.ResponseWriter, req *http.Request) {
+func GetRepoData(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	reponame := vars["repo"]
-
-	res.WriteHeader(http.StatusOK)
-	res.Header().Set("Content-Type", "application/gzip")
-	res.Write(repodata[reponame].Filelists)
-}
-
-func GetOther(res http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-	reponame := vars["repo"]
-
-	res.WriteHeader(http.StatusOK)
-	res.Header().Set("Content-Type", "application/gzip")
-	res.Write(repodata[reponame].Other)
-}
-
-func GetPrimary(res http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-	reponame := vars["repo"]
-
-	res.WriteHeader(http.StatusOK)
-	res.Header().Set("Content-Type", "application/gzip")
-	res.Write(repodata[reponame].Primary)
-}
-
-func GetRepomd(res http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-	reponame := vars["repo"]
-
-	res.WriteHeader(http.StatusOK)
-	res.Header().Set("Content-Type", "text/xml; charset=UTF-8")
-	res.Write(repodata[reponame].Repomd)
+	file := vars["file"]
+	if data, ok := repodata[reponame][file]; ok {
+		res.WriteHeader(http.StatusOK)
+		if strings.HasSuffix(file, "gz") {
+			res.Header().Set("Content-Type", "application/gzip")
+		} else {
+			res.Header().Set("Content-Type", "text/xml; charset=UTF-8")
+		}
+		res.Write(data)
+		return
+	}
+	res.WriteHeader(http.StatusNotFound)
 }

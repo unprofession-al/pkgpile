@@ -2,12 +2,7 @@ package yum
 
 import "github.com/cavaliercoder/go-rpm"
 
-type RepoData struct {
-	Primary   []byte
-	Filelists []byte
-	Other     []byte
-	Repomd    []byte
-}
+type RepoData map[string][]byte
 
 func CreateRepoData(packages map[string]rpm.PackageFile) (RepoData, error) {
 	rd := RepoData{}
@@ -19,7 +14,8 @@ func CreateRepoData(packages map[string]rpm.PackageFile) (RepoData, error) {
 		return rd, err
 	}
 	pzip, pzipsize, pzipsum := GetZip(pstr)
-	rd.Primary = pzip
+	rd["primary.xml"] = pstr
+	rd["primary.xml.gz"] = pzip
 	req["primary"] = RepomdRequirements{
 		OpenSum:  pstrsum,
 		OpenSize: pstrsize,
@@ -33,7 +29,8 @@ func CreateRepoData(packages map[string]rpm.PackageFile) (RepoData, error) {
 		return rd, err
 	}
 	fzip, fzipsize, fzipsum := GetZip(fstr)
-	rd.Filelists = fzip
+	rd["filelists.xml"] = fstr
+	rd["filelists.xml.gz"] = fzip
 	req["filelists"] = RepomdRequirements{
 		OpenSum:  fstrsum,
 		OpenSize: fstrsize,
@@ -47,7 +44,8 @@ func CreateRepoData(packages map[string]rpm.PackageFile) (RepoData, error) {
 		return rd, err
 	}
 	ozip, ozipsize, ozipsum := GetZip(ostr)
-	rd.Primary = ozip
+	rd["other.xml"] = ostr
+	rd["other.xml.gz"] = ozip
 	req["other"] = RepomdRequirements{
 		OpenSum:  ostrsum,
 		OpenSize: ostrsize,
@@ -60,7 +58,9 @@ func CreateRepoData(packages map[string]rpm.PackageFile) (RepoData, error) {
 	if err != nil {
 		return rd, err
 	}
-	rd.Repomd = rstr
+	rzip, _, _ := GetZip(rstr)
+	rd["repomd.xml"] = rstr
+	rd["repomd.xml.gz"] = rzip
 
 	return rd, nil
 }

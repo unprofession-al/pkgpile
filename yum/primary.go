@@ -31,6 +31,7 @@ type PrimaryPackage struct {
 	Time         PrimaryTime   `xml:"time"`
 	Size         PrimarySize   `xml:"size"`
 	Format       PrimaryFormat `xml:"format"`
+	Location     Location      `xml:"location"`
 }
 
 type PrimaryTime struct {
@@ -149,6 +150,7 @@ func GetPrimary(packages map[string]rpm.PackageFile) Primary {
 			pkgformat.Files = append(pkgformat.Files, file)
 		}
 		pkg := PrimaryPackage{
+			Type:         "rpm",
 			Name:         p.Name(),
 			Architecture: p.Architecture(),
 			Version:      pkgversion,
@@ -160,6 +162,9 @@ func GetPrimary(packages map[string]rpm.PackageFile) Primary {
 			Time:         pkgtime,
 			Size:         pkgsize,
 			Format:       pkgformat,
+			Location: Location{
+				Href: p.Name() + "." + p.Version() + "-" + p.Release() + "." + p.Architecture() + ".rpm",
+			},
 		}
 		primary.Package = append(primary.Package, pkg)
 	}

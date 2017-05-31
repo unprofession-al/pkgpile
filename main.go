@@ -31,7 +31,7 @@ func init() {
 	env.Var(&config.FilenameTemplate, "FILENAME_TEMPLATE", "{{.Name}}-{{.Version}}-{{.Release}}.{{.Architecture}}.rpm", "Turn debugging on (only print commands to be run)")
 }
 
-var store = map[string]map[string]rpm.PackageFile{}
+var metadata = map[string]map[string]rpm.PackageFile{}
 var repodata = map[string]yum.RepoData{}
 
 func main() {
@@ -47,10 +47,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/{repo}/", UploadPackage).Methods("POST")
-	r.HandleFunc("/{repo}/repodata/filelists.xml.gz", GetFilelists).Methods("GET")
-	r.HandleFunc("/{repo}/repodata/other.xml.gz", GetOther).Methods("GET")
-	r.HandleFunc("/{repo}/repodata/primary.xml.gz", GetPrimary).Methods("GET")
-	r.HandleFunc("/{repo}/repodata/repomd.xml", GetRepomd).Methods("GET")
+	r.HandleFunc("/{repo}/repodata/{file}", GetRepoData).Methods("GET")
 	r.HandleFunc("/config.json", GetConfig).Methods("GET")
 	chain := alice.New().Then(r)
 
