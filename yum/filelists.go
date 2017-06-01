@@ -1,10 +1,6 @@
 package yum
 
-import (
-	"encoding/xml"
-
-	"github.com/cavaliercoder/go-rpm"
-)
+import "encoding/xml"
 
 const filelistsXmlns = "http://linux.duke.edu/metadata/filelists"
 
@@ -20,14 +16,14 @@ type FilelistsPackage struct {
 	Package
 }
 
-func GetFilelists(packages map[string]rpm.PackageFile) Filelists {
+func GetFilelists(packages PackageInfos) Filelists {
 	filelists := Filelists{
 		Packages: len(packages),
 		Xmlns:    filelistsXmlns,
 		Package:  []FilelistsPackage{},
 	}
 
-	for sum, p := range packages {
+	for checksum, p := range packages {
 		pkgversion := Version{
 			Epoch:   p.Epoch(),
 			Version: p.Version(),
@@ -36,7 +32,7 @@ func GetFilelists(packages map[string]rpm.PackageFile) Filelists {
 		pkgdata := FilelistsPackage{
 			Package: Package{
 				Architecture: p.Architecture(),
-				Pkgid:        sum,
+				Pkgid:        checksum,
 				Name:         p.Name(),
 				Version:      pkgversion,
 			},

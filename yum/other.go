@@ -1,10 +1,6 @@
 package yum
 
-import (
-	"encoding/xml"
-
-	"github.com/cavaliercoder/go-rpm"
-)
+import "encoding/xml"
 
 const otherXmlns = "http://linux.duke.edu/metadata/other"
 
@@ -26,14 +22,14 @@ type OtherChangelog struct {
 	Value  string `xml:",chardata"`
 }
 
-func GetOther(packages map[string]rpm.PackageFile) Other {
+func GetOther(packages PackageInfos) Other {
 	other := Other{
 		Packages: len(packages),
 		Xmlns:    otherXmlns,
 		Package:  []OtherPackage{},
 	}
 
-	for sum, p := range packages {
+	for checksum, p := range packages {
 		pkgversion := Version{
 			Epoch:   p.Epoch(),
 			Version: p.Version(),
@@ -42,7 +38,7 @@ func GetOther(packages map[string]rpm.PackageFile) Other {
 		pkgdata := OtherPackage{
 			Package: Package{
 				Architecture: p.Architecture(),
-				Pkgid:        sum,
+				Pkgid:        checksum,
 				Name:         p.Name(),
 				Version:      pkgversion,
 			},

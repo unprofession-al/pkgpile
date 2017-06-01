@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/cavaliercoder/go-rpm"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/sontags/env"
@@ -31,7 +30,7 @@ func init() {
 	env.Var(&config.FilenameTemplate, "FILENAME_TEMPLATE", "{{.Name}}-{{.Version}}-{{.Release}}.{{.Architecture}}.rpm", "Turn debugging on (only print commands to be run)")
 }
 
-var metadata = map[string]map[string]rpm.PackageFile{}
+var metadata = map[string]yum.PackageInfos{}
 var repodata = map[string]yum.RepoData{}
 
 func main() {

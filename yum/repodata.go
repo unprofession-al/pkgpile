@@ -4,7 +4,14 @@ import "github.com/cavaliercoder/go-rpm"
 
 type RepoData map[string][]byte
 
-func CreateRepoData(packages map[string]rpm.PackageFile) (RepoData, error) {
+type PackageInfos map[string]PackageInfo
+
+type PackageInfo struct {
+	Path string
+	rpm.PackageFile
+}
+
+func CreateRepoData(packages PackageInfos) (RepoData, error) {
 	rd := RepoData{}
 	req := make(map[string]RepomdRequirements)
 

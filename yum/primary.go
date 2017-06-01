@@ -3,8 +3,6 @@ package yum
 import (
 	"encoding/xml"
 	"strconv"
-
-	"github.com/cavaliercoder/go-rpm"
 )
 
 const primaryXmlns = "http://linux.duke.edu/metadata/common"
@@ -72,7 +70,7 @@ type PrimaryFormatEntry struct {
 	Pre     string `xml:"pre,attr,omitempty"`
 }
 
-func GetPrimary(packages map[string]rpm.PackageFile) Primary {
+func GetPrimary(packages PackageInfos) Primary {
 	primary := Primary{
 		Packages: len(packages),
 		Xmlns:    primaryXmlns,
@@ -80,14 +78,14 @@ func GetPrimary(packages map[string]rpm.PackageFile) Primary {
 		Package:  []PrimaryPackage{},
 	}
 
-	for sum, p := range packages {
+	for checksum, p := range packages {
 		pkgversion := Version{
 			Epoch:   p.Epoch(),
 			Version: p.Version(),
 			Release: p.Release(),
 		}
 		pkgsum := Checksum{
-			Value: sum,
+			Value: checksum,
 			Type:  "sha256",
 			Pkgid: "YES",
 		}
@@ -163,7 +161,7 @@ func GetPrimary(packages map[string]rpm.PackageFile) Primary {
 			Size:         pkgsize,
 			Format:       pkgformat,
 			Location: Location{
-				Href: p.Name() + "." + p.Version() + "-" + p.Release() + "." + p.Architecture() + ".rpm",
+				Href: p.Path,
 			},
 		}
 		primary.Package = append(primary.Package, pkg)

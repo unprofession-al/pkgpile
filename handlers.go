@@ -39,11 +39,13 @@ func UploadPackage(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
+	pi := yum.PackageInfo{n.String(), *p}
+
 	if _, ok := metadata[reponame]; !ok {
-		metadata[reponame] = map[string]rpm.PackageFile{}
+		metadata[reponame] = yum.PackageInfos{}
 		l.l("creating repo", "creating repo "+reponame+" which did not exist")
 	}
-	metadata[reponame][sumString] = *p
+	metadata[reponame][sumString] = pi
 	l.l("storing package", "package "+n.String()+" is saved")
 
 	repodata[reponame], err = yum.CreateRepoData(metadata[reponame])
