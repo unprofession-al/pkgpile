@@ -58,10 +58,10 @@ func UploadPackage(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	metadata[reponame][sumString] = pi
+	packageinfo[reponame][sumString] = pi
 	l.l("storing package metadata", "package "+n.String()+" is saved")
 
-	repodata[reponame], err = yum.CreateRepoData(metadata[reponame])
+	repodata[reponame], err = yum.CreateRepoData(packageinfo[reponame])
 	if err != nil {
 		r.JSON(res, http.StatusInternalServerError, err.Error())
 		return

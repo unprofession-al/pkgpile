@@ -30,7 +30,7 @@ func init() {
 	env.Var(&config.FilenameTemplate, "FILENAME_TEMPLATE", "{{.Name}}-{{.Version}}-{{.Release}}.{{.Architecture}}.rpm", "Turn debugging on (only print commands to be run)")
 }
 
-var metadata = map[string]yum.PackageInfos{}
+var packageinfo = map[string]yum.PackageInfos{}
 var repodata = map[string]yum.RepoData{}
 
 func main() {
@@ -44,7 +44,12 @@ func main() {
 
 	config.Debug = !strings.Contains(config.DebugStr, "false")
 
-	err = readRepos()
+	err = createBaseDir()
+	if err != nil {
+		panic(err)
+	}
+
+	err = reindexPackages()
 	if err != nil {
 		panic(err)
 	}
