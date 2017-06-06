@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"fmt"
+	"html/template"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -102,6 +103,46 @@ func GetPackage(res http.ResponseWriter, req *http.Request) {
 
 	openfile.Seek(0, 0)
 	io.Copy(res, openfile)
+}
+
+func GetRepofile(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	reponame := vars["repo"]
+
+	proto := "https"
+	if req.TLS == nil {
+		proto = "http"
+	}
+
+	data := struct {
+		Reponame string
+		URL      string
+	}{
+		Reponame: reponame,
+		URL:      proto + "://" + req.Host + "/" + reponame + "/",
+	}
+
+	t := `[{{.Reponame}}]
+name={{.Reponame}}
+baseurl={{.URL}}
+enabled=1
+gpgcheck=0
+priority=1`
+
+	templ, err := template.New("repofile").Parse(t)
+	if err != nil {
+		http.Error(res, "Could not create template.", http.StatusInternalServerError)
+		return
+	}
+
+	var n bytes.Buffer
+	err = templ.Execute(&n, data)
+	if err != nil {
+		http.Error(res, "Could not render template.", http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprint(res, n.String())
 }
 
 func GetConfig(res http.ResponseWriter, req *http.Request) {
