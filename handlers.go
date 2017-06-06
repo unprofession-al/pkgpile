@@ -199,7 +199,24 @@ func GetPackageInfo(res http.ResponseWriter, req *http.Request) {
 	if repo, ok := packageinfo[reponame]; ok {
 		for _, pkg := range repo {
 			if pkg.Path == pkgname {
-				r.JSON(res, http.StatusOK, pkg)
+				data := struct {
+					Path        string `json:"path"`
+					Name        string `json:"name"`
+					Version     string `json:"version"`
+					Release     string `json:"release"`
+					Arch        string `json:"arch"`
+					Summary     string `json:"summary"`
+					Description string `json:"description"`
+				}{
+					Path:        pkg.Path,
+					Name:        pkg.Name(),
+					Version:     pkg.Version(),
+					Release:     pkg.Release(),
+					Arch:        pkg.Architecture(),
+					Summary:     pkg.Summary(),
+					Description: pkg.Description(),
+				}
+				r.JSON(res, http.StatusOK, data)
 				return
 			}
 		}
