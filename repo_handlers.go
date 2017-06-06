@@ -145,11 +145,6 @@ priority=1`
 	fmt.Fprint(res, n.String())
 }
 
-func GetConfig(res http.ResponseWriter, req *http.Request) {
-	r := render.New()
-	r.JSON(res, http.StatusOK, config)
-}
-
 func GetRepoData(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	reponame := vars["repo"]

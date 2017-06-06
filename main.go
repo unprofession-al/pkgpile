@@ -55,11 +55,14 @@ func main() {
 	}
 
 	r := mux.NewRouter()
+	r.HandleFunc("/api/config", GetConfig).Methods("GET")
+	r.HandleFunc("/api/repos/", ListRepos).Methods("GET")
+	r.HandleFunc("/api/repos/{repo}/packages/", ListPackages).Methods("GET")
+	r.HandleFunc("/api/repos/{repo}/packages/{package}", GetPackageInfo).Methods("GET")
 	r.HandleFunc("/{repo}/", UploadPackage).Methods("POST")
 	r.HandleFunc("/{repo}/repodata/{file}", GetRepoData).Methods("GET")
 	r.HandleFunc("/{repo}/repofile/{name}.repo", GetRepofile).Methods("GET")
 	r.HandleFunc("/{repo}/{file}", GetPackage).Methods("GET")
-	r.HandleFunc("/config.json", GetConfig).Methods("GET")
 	chain := alice.New().Then(r)
 
 	l.l("starting...", "pkgpile should be ready")
