@@ -21,6 +21,7 @@ import (
 func UploadPackage(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	reponame := vars["repo"]
+	skipupdate := vars["skipupdate"]
 
 	r := render.New()
 
@@ -62,12 +63,14 @@ func UploadPackage(res http.ResponseWriter, req *http.Request) {
 	packageinfo[reponame][sumString] = pi
 	l.l("storing package metadata", "package "+n.String()+" is saved")
 
-	repodata[reponame], err = yum.CreateRepoData(packageinfo[reponame])
-	if err != nil {
-		r.JSON(res, http.StatusInternalServerError, err.Error())
-		return
+	if skipupdate != "" {
+		repodata[reponame], err = yum.CreateRepoData(packageinfo[reponame])
+		if err != nil {
+			r.JSON(res, http.StatusInternalServerError, err.Error())
+			return
+		}
+		l.l("updating repodata", "repodata saved")
 	}
-	l.l("updating repodata", "repodata saved")
 
 	r.JSON(res, http.StatusOK, n.String())
 }
