@@ -165,6 +165,21 @@ func GetRepoData(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusNotFound)
 }
 
+func GetRepoDataIndex(res http.ResponseWriter, req *http.Request) {
+	r := render.New()
+	vars := mux.Vars(req)
+	reponame := vars["repo"]
+	out := []string{}
+	if data, ok := repodata[reponame]; ok {
+		for filename, _ := range data {
+			out = append(out, filename)
+		}
+		r.JSON(res, http.StatusOK, out)
+		return
+	}
+	r.JSON(res, http.StatusNotFound, "Repo does not exist")
+}
+
 func GetConfig(res http.ResponseWriter, req *http.Request) {
 	r := render.New()
 	r.JSON(res, http.StatusOK, config)

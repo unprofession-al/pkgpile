@@ -59,6 +59,7 @@ func main() {
 	r.HandleFunc("/", ListRepos).Methods("GET")
 	r.HandleFunc("/{repo}/", ListPackages).Methods("GET")
 	r.HandleFunc("/{repo}/", UploadPackage).Methods("POST")
+	r.HandleFunc("/{repo}/repodata/", GetRepoDataIndex).Methods("GET")
 	r.HandleFunc("/{repo}/repodata/{file}", GetRepoData).Methods("GET")
 	r.HandleFunc("/{repo}/repofile/{name}.repo", GetRepofile).Methods("GET")
 	r.HandleFunc("/{repo}/{file}", GetPackage).Methods("GET")
