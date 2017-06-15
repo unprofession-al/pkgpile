@@ -2,6 +2,7 @@ package yum
 
 import (
 	"encoding/xml"
+	"regexp"
 	"strconv"
 )
 
@@ -71,6 +72,11 @@ type PrimaryFormatEntry struct {
 }
 
 func GetPrimary(packages PackageInfos) Primary {
+	fileRegex := []*regexp.Regexp{
+		regexp.MustCompile(".*bin/.*"),
+		regexp.MustCompile("^/etc/.*"),
+		regexp.MustCompile("^/usr/lib/sendmail$"),
+	}
 	primary := Primary{
 		Packages: len(packages),
 		Xmlns:    primaryXmlns,
@@ -145,7 +151,12 @@ func GetPrimary(packages PackageInfos) Primary {
 				// TODO: The if does not quite work
 				file.Type = "dir"
 			}
-			pkgformat.Files = append(pkgformat.Files, file)
+			for _, re := range fileRegex {
+				if re.MatchString(f.Name()) {
+					pkgformat.Files = append(pkgformat.Files, file)
+					break
+				}
+			}
 		}
 		pkg := PrimaryPackage{
 			Type:         "rpm",
